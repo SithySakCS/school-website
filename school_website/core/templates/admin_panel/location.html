@@ -1,0 +1,52 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Location{% endblock %}
+{% block page_title %}📍 Location & Google Map{% endblock %}
+{% block content %}
+<form method="post">
+{% csrf_token %}
+<div class="form-section">
+  <div class="form-section-title">📍 Section Title</div>
+  <div class="lang-pair">
+    <div><div class="en-label">🇺🇸 Title (EN)</div><input type="text" name="title_en" value="{{ obj.title_en }}" placeholder="Visit Our Campus"></div>
+    <div><div class="km-label">🇰🇭 Title (KM)</div><input type="text" name="title_km" value="{{ obj.title_km }}" placeholder="ចូលទស្សនាសាលា"></div>
+  </div>
+</div>
+<div class="form-section">
+  <div class="form-section-title">🏠 Address & Hours</div>
+  <div class="lang-pair" style="margin-bottom:1rem">
+    <div><div class="en-label">🇺🇸 Address (EN)</div><textarea name="address_en" rows="3">{{ obj.address_en }}</textarea></div>
+    <div><div class="km-label">🇰🇭 Address (KM)</div><textarea name="address_km" rows="3">{{ obj.address_km }}</textarea></div>
+  </div>
+  <div class="lang-pair">
+    <div><div class="en-label">🇺🇸 Office Hours (EN)</div><input type="text" name="hours_en" value="{{ obj.hours_en }}" placeholder="Mon–Fri 8AM–6PM"></div>
+    <div><div class="km-label">🇰🇭 Office Hours (KM)</div><input type="text" name="hours_km" value="{{ obj.hours_km }}" placeholder="ចន្ទ–សុក្រ..."></div>
+  </div>
+</div>
+<div class="form-section">
+  <div class="form-section-title">🗺️ Google Maps</div>
+  <div class="frow" style="margin-bottom:1.25rem">
+    <label>Google Maps Embed Code</label>
+    <div class="hint" style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem;background:var(--off);padding:.75rem;border-radius:6px;border-left:3px solid var(--blue)">
+      <strong>How to get embed code:</strong><br>
+      1. Go to <strong>maps.google.com</strong><br>
+      2. Search your school address<br>
+      3. Click <strong>Share</strong> → <strong>Embed a map</strong><br>
+      4. Copy the full &lt;iframe ...&gt;&lt;/iframe&gt; code<br>
+      5. Paste it below
+    </div>
+    <textarea name="google_map_embed" rows="5" placeholder="&lt;iframe src=&quot;https://www.google.com/maps/embed?pb=...&quot; ...&gt;&lt;/iframe&gt;">{{ obj.google_map_embed }}</textarea>
+  </div>
+  <div class="frow">
+    <label>Google Maps Link (for "Open in Maps" button)</label>
+    <input type="url" name="open_map_url" value="{{ obj.open_map_url }}" placeholder="https://maps.google.com/?q=your+school+address">
+  </div>
+  {% if obj.google_map_embed %}
+  <div style="margin-top:1.25rem">
+    <div style="font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:.5rem">Current Map Preview:</div>
+    <div style="border-radius:8px;overflow:hidden;height:250px;border:1px solid var(--border)">{{ obj.google_map_embed|safe }}</div>
+  </div>
+  {% endif %}
+</div>
+<button type="submit" class="topbar-btn btn-green" style="font-size:.9rem;padding:.65rem 1.75rem">💾 Save Location</button>
+</form>
+{% endblock %}

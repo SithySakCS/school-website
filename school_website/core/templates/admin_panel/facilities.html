@@ -1,0 +1,93 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Facilities{% endblock %}
+{% block page_title %}🏫 Facilities Manager{% endblock %}
+{% block topbar_actions %}<button class="topbar-btn btn-blue" onclick="openModal('addModal')">+ Add Facility</button>{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body" style="padding:0">
+    <table class="data-table">
+      <thead><tr><th>Image</th><th>Title (EN)</th><th>Title (KM)</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{% if item.image %}<img src="{{ item.image.url }}" class="thumb" alt="">{% else %}<span style="font-size:1.5rem">🏫</span>{% endif %}</td>
+          <td><strong>{{ item.title_en }}</strong><br><span style="font-size:.75rem;color:var(--muted)">{{ item.description_en|truncatechars:50 }}</span></td>
+          <td>{{ item.title_km }}</td>
+          <td>{{ item.order }}</td>
+          <td>{% if item.is_active %}<span class="status-badge status-accepted">Active</span>{% else %}<span class="status-badge status-rejected">Hidden</span>{% endif %}</td>
+          <td><div class="actions"><button class="topbar-btn btn-outline" style="font-size:.72rem;padding:.3rem .7rem" onclick="openEditModal({{ item.pk }}, '{{ item.title_en|escapejs }}','{{ item.title_km|escapejs }}','{{ item.description_en|escapejs }}','{{ item.description_km|escapejs }}',{{ item.order }},'{% if item.image %}{{ item.image.url }}{% endif %}')">✏️ Edit</button><a href="/admin-panel/facilities/delete/{{ item.pk }}/" class="topbar-btn btn-red" style="font-size:.72rem;padding:.3rem .7rem" onclick="return confirm('Delete this facility?')">🗑️</a></div></td>
+        </tr>
+        {% empty %}<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No facilities yet. Click "+ Add Facility" to get started.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">➕ Add New Facility</div><button class="modal-close" onclick="closeModal('addModal')">✕</button></div>
+    <form method="post" action="/admin-panel/facilities/save/" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="lang-pair" style="margin-bottom:1rem">
+          <div><div class="en-label">🇺🇸 Title (English)</div><input type="text" name="title_en" required placeholder="e.g. Library"></div>
+          <div><div class="km-label">🇰🇭 Title (Khmer)</div><input type="text" name="title_km" required placeholder="បណ្ណាល័យ"></div>
+        </div>
+        <div class="lang-pair" style="margin-bottom:1rem">
+          <div><div class="en-label">🇺🇸 Description (English)</div><textarea name="description_en" rows="3" placeholder="Describe this facility..."></textarea></div>
+          <div><div class="km-label">🇰🇭 Description (Khmer)</div><textarea name="description_km" rows="3" placeholder="ការពណ៌នា..."></textarea></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="frow"><label>Display Order</label><input type="number" name="order" value="0" min="0"></div>
+          <div class="frow"><label>Status</label><select name="is_active"><option value="on">Active (Visible)</option></select></div>
+        </div>
+        <div class="frow" style="margin-top:1rem"><label>Facility Image</label><input type="file" name="image" accept="image/*"></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="topbar-btn btn-gray" onclick="closeModal('addModal')">Cancel</button><button type="submit" class="topbar-btn btn-green">💾 Save Facility</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">✏️ Edit Facility</div><button class="modal-close" onclick="closeModal('editModal')">✕</button></div>
+    <form method="post" id="editForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div id="editImgWrap" style="margin-bottom:1rem"></div>
+        <div class="lang-pair" style="margin-bottom:1rem">
+          <div><div class="en-label">🇺🇸 Title (EN)</div><input type="text" name="title_en" id="e_title_en" required></div>
+          <div><div class="km-label">🇰🇭 Title (KM)</div><input type="text" name="title_km" id="e_title_km" required></div>
+        </div>
+        <div class="lang-pair" style="margin-bottom:1rem">
+          <div><div class="en-label">🇺🇸 Description (EN)</div><textarea name="description_en" id="e_desc_en" rows="3"></textarea></div>
+          <div><div class="km-label">🇰🇭 Description (KM)</div><textarea name="description_km" id="e_desc_km" rows="3"></textarea></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="frow"><label>Order</label><input type="number" name="order" id="e_order" min="0"></div>
+          <div class="frow"><label>Status</label><select name="is_active"><option value="on">Active</option></select></div>
+        </div>
+        <div class="frow" style="margin-top:1rem"><label>Replace Image (optional)</label><input type="file" name="image" accept="image/*"></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="topbar-btn btn-gray" onclick="closeModal('editModal')">Cancel</button><button type="submit" class="topbar-btn btn-green">💾 Save Changes</button></div>
+    </form>
+  </div>
+</div>
+<script>
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function openEditModal(pk,ten,tkm,den,dkm,ord,img){
+  document.getElementById('e_title_en').value=ten;
+  document.getElementById('e_title_km').value=tkm;
+  document.getElementById('e_desc_en').value=den;
+  document.getElementById('e_desc_km').value=dkm;
+  document.getElementById('e_order').value=ord;
+  document.getElementById('editForm').action='/admin-panel/facilities/save/'+pk+'/';
+  const wrap=document.getElementById('editImgWrap');
+  wrap.innerHTML=img?'<div style="margin-bottom:.5rem"><img src="'+img+'" style="width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"><p style="font-size:.72rem;color:var(--muted);margin-top:.3rem">Current image</p></div>':'';
+  openModal('editModal');
+}
+</script>
+{% endblock %}

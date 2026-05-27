@@ -1,0 +1,44 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Application Detail{% endblock %}
+{% block page_title %}📝 Application — {{ app.full_name }}{% endblock %}
+{% block topbar_actions %}<a href="/admin-panel/applications/" class="topbar-btn btn-gray">← Back to List</a>{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
+  <div>
+    <div class="form-section">
+      <div class="form-section-title">👤 Student Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Full Name</div><div style="font-weight:600;font-size:.95rem">{{ app.full_name }}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Date of Birth</div><div style="font-weight:600;font-size:.95rem">{{ app.date_of_birth }}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Gender</div><div style="font-weight:600;font-size:.95rem">{{ app.gender }}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Grade Applying</div><div style="font-weight:600;font-size:.95rem">{{ app.grade_applying }}</div></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">👨‍👩‍👧 Parent / Guardian</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Parent Name</div><div style="font-weight:600">{{ app.parent_name }}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Phone</div><div style="font-weight:600">{{ app.phone }}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Email</div><div style="font-weight:600">{{ app.email|default:"—" }}</div></div>
+        <div><div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Address</div><div style="font-weight:600">{{ app.address }}</div></div>
+      </div>
+      {% if app.message %}<div style="margin-top:1rem;padding:1rem;background:var(--off);border-radius:7px;font-size:.85rem;color:var(--muted)"><strong>Notes:</strong> {{ app.message }}</div>{% endif %}
+    </div>
+  </div>
+  <div>
+    <div class="form-section">
+      <div class="form-section-title">⚙️ Application Status</div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="frow" style="margin-bottom:1rem"><label>Current Status</label><select name="status"><option value="new" {% if app.status == 'new' %}selected{% endif %}>🔵 New</option><option value="reviewed" {% if app.status == 'reviewed' %}selected{% endif %}>🟡 Reviewed</option><option value="accepted" {% if app.status == 'accepted' %}selected{% endif %}>🟢 Accepted</option><option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>🔴 Rejected</option></select></div>
+        <div class="frow" style="margin-bottom:1rem"><label>Admin Notes</label><textarea name="admin_notes" rows="5" placeholder="Internal notes...">{{ app.admin_notes }}</textarea></div>
+        <button type="submit" class="topbar-btn btn-green" style="width:100%;font-size:.9rem;padding:.65rem">💾 Update Status</button>
+      </form>
+      <div style="margin-top:1rem;padding:1rem;background:var(--off);border-radius:7px">
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem">Submitted</div>
+        <div style="font-size:.85rem;font-weight:600">{{ app.submitted_at|date:"F d, Y — H:i" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

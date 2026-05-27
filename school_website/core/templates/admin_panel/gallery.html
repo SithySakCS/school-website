@@ -1,0 +1,70 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Gallery{% endblock %}
+{% block page_title %}📷 Gallery Manager{% endblock %}
+{% block topbar_actions %}<button class="topbar-btn btn-blue" onclick="openModal('addModal')">+ Add Photo</button>{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem">
+  {% for item in items %}
+  <div style="background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <div style="height:150px;overflow:hidden;background:var(--off);display:flex;align-items:center;justify-content:center">
+      {% if item.image %}<img src="{{ item.image.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}<span style="font-size:2rem">📸</span>{% endif %}
+    </div>
+    <div style="padding:1rem">
+      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.2rem">{{ item.title_en|truncatechars:30 }}</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem">{{ item.category }} {% if item.is_featured %}⭐{% endif %}</div>
+      <div class="actions">
+        <button class="topbar-btn btn-outline" style="font-size:.68rem;padding:.28rem .65rem" onclick="openEditModal({{ item.pk }},'{{ item.title_en|escapejs }}','{{ item.title_km|escapejs }}','{{ item.description_en|escapejs }}','{{ item.description_km|escapejs }}','{{ item.category }}',{{ item.order }},'{% if item.image %}{{ item.image.url }}{% endif %}',{% if item.is_featured %}true{% else %}false{% endif %})">✏️</button>
+        <a href="/admin-panel/gallery/delete/{{ item.pk }}/" class="topbar-btn btn-red" style="font-size:.68rem;padding:.28rem .65rem" onclick="return confirm('Delete this photo?')">🗑️</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)"><p style="font-size:2rem">📷</p><p style="margin-top:1rem">No photos yet. Click "+ Add Photo" to upload your first gallery image.</p></div>{% endfor %}
+</div>
+<div class="modal-bg" id="addModal">
+  <div class="modal"><div class="modal-header"><div class="modal-title">➕ Add Gallery Photo</div><button class="modal-close" onclick="closeModal('addModal')">✕</button></div>
+  <form method="post" action="/admin-panel/gallery/save/" enctype="multipart/form-data">{% csrf_token %}
+    <div class="modal-body">
+      <div class="lang-pair" style="margin-bottom:1rem"><div><div class="en-label">🇺🇸 Title (EN)</div><input type="text" name="title_en" required placeholder="Photo title"></div><div><div class="km-label">🇰🇭 Title (KM)</div><input type="text" name="title_km" placeholder="ចំណងជើង"></div></div>
+      <div class="lang-pair" style="margin-bottom:1rem"><div><div class="en-label">🇺🇸 Description (EN)</div><textarea name="description_en" rows="2" placeholder="Short description"></textarea></div><div><div class="km-label">🇰🇭 Description (KM)</div><textarea name="description_km" rows="2" placeholder="ការពណ៌នា"></textarea></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div class="frow"><label>Category</label><select name="category"><option value="events">Events</option><option value="students">Students</option><option value="facilities">Facilities</option><option value="sports">Sports</option><option value="ceremonies">Ceremonies</option><option value="classroom">Classroom</option></select></div>
+        <div class="frow"><label>Order</label><input type="number" name="order" value="0"></div>
+        <div class="frow"><label>Featured?</label><select name="is_featured"><option value="">No</option><option value="on">Yes ⭐</option></select></div>
+      </div>
+      <div class="frow"><label>Photo (required) *</label><input type="file" name="image" accept="image/*" required></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="topbar-btn btn-gray" onclick="closeModal('addModal')">Cancel</button><button type="submit" class="topbar-btn btn-green">💾 Upload Photo</button></div>
+  </form></div>
+</div>
+<div class="modal-bg" id="editModal">
+  <div class="modal"><div class="modal-header"><div class="modal-title">✏️ Edit Gallery Photo</div><button class="modal-close" onclick="closeModal('editModal')">✕</button></div>
+  <form method="post" id="editForm" enctype="multipart/form-data">{% csrf_token %}
+    <div class="modal-body">
+      <div id="editImgWrap" style="margin-bottom:1rem"></div>
+      <div class="lang-pair" style="margin-bottom:1rem"><div><div class="en-label">🇺🇸 Title (EN)</div><input type="text" name="title_en" id="e_ten" required></div><div><div class="km-label">🇰🇭 Title (KM)</div><input type="text" name="title_km" id="e_tkm"></div></div>
+      <div class="lang-pair" style="margin-bottom:1rem"><div><div class="en-label">🇺🇸 Desc (EN)</div><textarea name="description_en" id="e_den" rows="2"></textarea></div><div><div class="km-label">🇰🇭 Desc (KM)</div><textarea name="description_km" id="e_dkm" rows="2"></textarea></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div class="frow"><label>Category</label><select name="category" id="e_cat"><option value="events">Events</option><option value="students">Students</option><option value="facilities">Facilities</option><option value="sports">Sports</option><option value="ceremonies">Ceremonies</option><option value="classroom">Classroom</option></select></div>
+        <div class="frow"><label>Order</label><input type="number" name="order" id="e_ord"></div>
+        <div class="frow"><label>Featured?</label><select name="is_featured" id="e_feat"><option value="">No</option><option value="on">Yes ⭐</option></select></div>
+      </div>
+      <div class="frow"><label>Replace Photo (optional)</label><input type="file" name="image" accept="image/*"></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="topbar-btn btn-gray" onclick="closeModal('editModal')">Cancel</button><button type="submit" class="topbar-btn btn-green">💾 Save</button></div>
+  </form></div>
+</div>
+<script>
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function openEditModal(pk,ten,tkm,den,dkm,cat,ord,img,feat){
+  document.getElementById('e_ten').value=ten;document.getElementById('e_tkm').value=tkm;
+  document.getElementById('e_den').value=den;document.getElementById('e_dkm').value=dkm;
+  document.getElementById('e_cat').value=cat;document.getElementById('e_ord').value=ord;
+  document.getElementById('e_feat').value=feat?'on':'';
+  document.getElementById('editForm').action='/admin-panel/gallery/save/'+pk+'/';
+  const w=document.getElementById('editImgWrap');
+  w.innerHTML=img?'<img src="'+img+'" style="width:100%;height:140px;object-fit:cover;border-radius:6px;border:1px solid var(--border);margin-bottom:.5rem">':'';
+  openModal('editModal');
+}
+</script>
+{% endblock %}

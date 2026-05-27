@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin Panel{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0b1f3a;--blue:#1d6fa4;--blue2:#2589c7;--bluepale:#e8f4fb;--green:#198754;--red:#dc3545;--orange:#fd7e14;--off:#f8f9fc;--border:#e2e8f0;--text:#1a202c;--muted:#64748b;--sidebar:260px}
+body{font-family:'Inter',sans-serif;background:var(--off);color:var(--text);display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sb-logo{padding:1.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo-inner{display:flex;align-items:center;gap:.75rem}
+.sb-logo-mark{width:38px;height:38px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1rem;flex-shrink:0}
+.sb-logo-text{font-size:.88rem;font-weight:700;color:#fff;line-height:1.3}
+.sb-logo-sub{font-size:.65rem;color:rgba(255,255,255,.4);margin-top:.1rem;display:block}
+.sb-nav{padding:.75rem 0;flex:1}
+.sb-section{padding:.5rem 1.25rem .25rem;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.3)}
+.sb-link{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.25rem;color:rgba(255,255,255,.6);text-decoration:none;font-size:.82rem;font-weight:500;transition:all .2s;border-left:3px solid transparent;margin:.1rem 0}
+.sb-link:hover,.sb-link.active{color:#fff;background:rgba(255,255,255,.07);border-left-color:var(--blue2)}
+.sb-link .icon{font-size:1rem;flex-shrink:0;width:20px;text-align:center}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:.62rem;font-weight:700;padding:.15rem .5rem;border-radius:2rem}
+.sb-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-user{display:flex;align-items:center;gap:.65rem;color:rgba(255,255,255,.6);font-size:.8rem}
+.sb-avatar{width:32px;height:32px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:600;flex-shrink:0}
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:.9rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:1rem}
+.topbar-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:5px;font-size:.8rem;font-weight:600;text-decoration:none;transition:all .2s;border:none;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue2)}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-gray{background:#e2e8f0;color:var(--text)}.btn-gray:hover{background:#d0d8e4}
+.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border)}.btn-outline:hover{background:var(--off)}
+.content{padding:2rem;flex:1}
+/* CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.5rem;display:flex;align-items:center;gap:1rem}
+.stat-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.stat-icon.blue{background:var(--bluepale)}
+.stat-icon.green{background:#d1fae5}
+.stat-icon.orange{background:#fff3cd}
+.stat-icon.red{background:#fee2e2}
+.stat-num{font-size:1.75rem;font-weight:800;color:var(--text);line-height:1}
+.stat-label{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1.5rem}
+.card-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#fff}
+.card-title{font-size:.9rem;font-weight:700;color:var(--text)}
+.card-body{padding:1.5rem}
+/* FORMS */
+.form-section{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.75rem;margin-bottom:1.5rem}
+.form-section-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:1.25rem;padding-bottom:.65rem;border-bottom:1px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.5rem}
+.form-grid.single{grid-template-columns:1fr}
+.form-grid .full{grid-column:1/-1}
+.frow{display:flex;flex-direction:column;gap:.3rem}
+.frow label{font-size:.75rem;font-weight:600;color:var(--text)}
+.frow .hint{font-size:.68rem;color:var(--muted);margin-top:.15rem}
+.frow input,.frow select,.frow textarea{padding:.6rem .85rem;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;font-family:'Inter',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .2s;width:100%}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--blue)}
+.frow textarea{resize:vertical;min-height:90px}
+.lang-pair{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;padding:.85rem;background:var(--off);border-radius:8px;border:1px solid var(--border)}
+.lang-pair .en-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-bottom:.25rem}
+.lang-pair .km-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#c8820a;margin-bottom:.25rem}
+.img-preview{width:100%;max-width:280px;height:160px;border-radius:8px;overflow:hidden;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;background:var(--off);margin-bottom:.75rem;position:relative}
+.img-preview img{width:100%;height:100%;object-fit:cover}
+.img-preview .no-img{font-size:2rem;flex-direction:column;display:flex;align-items:center;gap:.5rem;color:var(--muted)}
+.img-preview .no-img span{font-size:.72rem}
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:.65rem 1rem;text-align:left;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--off);border-bottom:1px solid var(--border)}
+.data-table td{padding:.85rem 1rem;font-size:.85rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fafbfc}
+.status-badge{display:inline-block;padding:.2rem .65rem;border-radius:2rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.status-new{background:#dbeafe;color:#1d4ed8}
+.status-reviewed{background:#fff3cd;color:#92400e}
+.status-accepted{background:#d1fae5;color:#065f46}
+.status-rejected{background:#fee2e2;color:#991b1b}
+.thumb{width:52px;height:40px;border-radius:5px;object-fit:cover;border:1px solid var(--border)}
+.actions{display:flex;gap:.4rem}
+/* ALERTS */
+.alert{padding:.85rem 1rem;border-radius:7px;margin-bottom:1.25rem;font-size:.85rem;display:flex;align-items:center;gap:.6rem}
+.alert-success{background:#d1fae5;border:1px solid #a7f3d0;color:#065f46}
+.alert-error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:2rem}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:680px;max-height:85vh;overflow-y:auto}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:1rem;font-weight:700}
+.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);line-height:1}
+.modal-body{padding:1.5rem}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.65rem}
+/* VIEW TOGGLE */
+.view-toggle{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.vt-btn{padding:.4rem .85rem;border-radius:5px;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text);transition:all .2s;font-family:'Inter',sans-serif}
+.vt-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-inner">
+      <div class="sb-logo-mark">A</div>
+      <div>
+        <div class="sb-logo-text">Admin Panel</div>
+        <span class="sb-logo-sub">School Website Manager</span>
+      </div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <a href="/admin-panel/" class="sb-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"><span class="icon">📊</span>Dashboard</a>
+    <div class="sb-section">Website Content</div>
+    <a href="/admin-panel/site-settings/" class="sb-link {% if request.resolver_match.url_name == 'admin_site_settings' %}active{% endif %}"><span class="icon">⚙️</span>Header & Logo</a>
+    <a href="/admin-panel/hero/" class="sb-link {% if request.resolver_match.url_name == 'admin_hero' %}active{% endif %}"><span class="icon">🖼️</span>Hero Section</a>
+    <a href="/admin-panel/about/" class="sb-link {% if request.resolver_match.url_name == 'admin_about' %}active{% endif %}"><span class="icon">📖</span>About Section</a>
+    <a href="/admin-panel/facilities/" class="sb-link {% if request.resolver_match.url_name == 'admin_facilities' %}active{% endif %}"><span class="icon">🏫</span>Facilities</a>
+    <a href="/admin-panel/offers/" class="sb-link {% if request.resolver_match.url_name == 'admin_offers' %}active{% endif %}"><span class="icon">✨</span>What We Offer</a>
+    <a href="/admin-panel/gallery/" class="sb-link {% if request.resolver_match.url_name == 'admin_gallery' %}active{% endif %}"><span class="icon">🖼️</span>Gallery</a>
+    <a href="/admin-panel/location/" class="sb-link {% if request.resolver_match.url_name == 'admin_location' %}active{% endif %}"><span class="icon">📍</span>Location & Map</a>
+    <a href="/admin-panel/contact/" class="sb-link {% if request.resolver_match.url_name == 'admin_contact' %}active{% endif %}"><span class="icon">📞</span>Contact & Admissions</a>
+    <div class="sb-section">Submissions</div>
+    <a href="/admin-panel/applications/" class="sb-link {% if 'application' in request.resolver_match.url_name %}active{% endif %}"><span class="icon">📝</span>Applications</a>
+    <div class="sb-section">Site</div>
+    <a href="/" target="_blank" class="sb-link"><span class="icon">🌐</span>View Website</a>
+    <a href="/admin-panel/logout/" class="sb-link"><span class="icon">🚪</span>Logout</a>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">{{ request.user.username|first|upper }}</div>
+      <div><div style="color:#fff;font-size:.8rem;font-weight:600">{{ request.user.username }}</div><div style="font-size:.68rem">Administrator</div></div>
+    </div>
+  </div>
+</aside>
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+    <div class="topbar-right">
+      {% block topbar_actions %}{% endblock %}
+      <a href="/" target="_blank" class="topbar-btn btn-outline">🌐 View Site</a>
+    </div>
+  </div>
+  <div class="content">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+          {% if message.tags == 'success' %}✅{% else %}❌{% endif %} {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+</body>
+</html>

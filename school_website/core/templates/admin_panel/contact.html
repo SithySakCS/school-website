@@ -1,0 +1,56 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Contact{% endblock %}
+{% block page_title %}📞 Contact & Admissions{% endblock %}
+{% block content %}
+<form method="post">
+{% csrf_token %}
+<div class="form-section">
+  <div class="form-section-title">📞 Contact Information</div>
+  <div class="lang-pair" style="margin-bottom:1rem">
+    <div><div class="en-label">🇺🇸 Section Title (EN)</div><input type="text" name="title_en" value="{{ obj.title_en }}" placeholder="Get In Touch"></div>
+    <div><div class="km-label">🇰🇭 Section Title (KM)</div><input type="text" name="title_km" value="{{ obj.title_km }}" placeholder="ទំនាក់ទំនង"></div>
+  </div>
+  <div class="form-grid">
+    <div class="frow"><label>Phone Number</label><input type="text" name="phone" value="{{ obj.phone }}" placeholder="(000) 000-0000"></div>
+    <div class="frow"><label>Email Address</label><input type="email" name="email" value="{{ obj.email }}" placeholder="school@email.com"></div>
+  </div>
+  <div class="lang-pair" style="margin-bottom:1rem;margin-top:1rem">
+    <div><div class="en-label">🇺🇸 Address (EN)</div><textarea name="address_en" rows="3">{{ obj.address_en }}</textarea></div>
+    <div><div class="km-label">🇰🇭 Address (KM)</div><textarea name="address_km" rows="3">{{ obj.address_km }}</textarea></div>
+  </div>
+  <div class="lang-pair">
+    <div><div class="en-label">🇺🇸 Office Hours (EN)</div><input type="text" name="hours_en" value="{{ obj.hours_en }}" placeholder="Mon–Fri 8AM–6PM"></div>
+    <div><div class="km-label">🇰🇭 Office Hours (KM)</div><input type="text" name="hours_km" value="{{ obj.hours_km }}" placeholder="ចន្ទ–សុក្រ..."></div>
+  </div>
+</div>
+<div class="form-section">
+  <div class="form-section-title">🎓 Admissions Information</div>
+  <div class="lang-pair">
+    <div><div class="en-label">🇺🇸 Admissions Info (EN)</div><textarea name="admission_info_en" rows="5">{{ obj.admission_info_en }}</textarea></div>
+    <div><div class="km-label">🇰🇭 Admissions Info (KM)</div><textarea name="admission_info_km" rows="5">{{ obj.admission_info_km }}</textarea></div>
+  </div>
+</div>
+<button type="submit" class="topbar-btn btn-green" style="font-size:.9rem;padding:.65rem 1.75rem;margin-bottom:2rem">💾 Save Contact Info</button>
+</form>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">💬 Received Messages ({{ messages_list.count }})</div></div>
+  <div class="card-body" style="padding:0">
+    <table class="data-table">
+      <thead><tr><th>From</th><th>Email</th><th>Subject</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for msg in messages_list %}
+        <tr style="{% if not msg.is_read %}background:#fffbeb{% endif %}">
+          <td><strong>{{ msg.name }}</strong></td>
+          <td>{{ msg.email }}</td>
+          <td>{{ msg.subject|default:"—"|truncatechars:40 }}<br><span style="font-size:.72rem;color:var(--muted)">{{ msg.message|truncatechars:60 }}</span></td>
+          <td>{{ msg.submitted_at|date:"M d, Y" }}</td>
+          <td>{% if msg.is_read %}<span class="status-badge status-accepted">Read</span>{% else %}<span class="status-badge status-new">New</span>{% endif %}</td>
+          <td><div class="actions">{% if not msg.is_read %}<a href="/admin-panel/messages/read/{{ msg.pk }}/" class="topbar-btn btn-blue" style="font-size:.68rem;padding:.28rem .65rem">✓ Read</a>{% endif %}<a href="/admin-panel/messages/delete/{{ msg.pk }}/" class="topbar-btn btn-red" style="font-size:.68rem;padding:.28rem .65rem" onclick="return confirm('Delete?')">🗑️</a></div></td>
+        </tr>
+        {% empty %}<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No messages received yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
