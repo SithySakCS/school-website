@@ -1,0 +1,32 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Applications{% endblock %}
+{% block page_title %}📝 Student Applications{% endblock %}
+{% block content %}
+<div style="display:flex;gap:.65rem;margin-bottom:1.5rem;flex-wrap:wrap">
+  <a href="/admin-panel/applications/" class="vt-btn {% if not status_filter %}active{% endif %}">All</a>
+  <a href="?status=new" class="vt-btn {% if status_filter == 'new' %}active{% endif %}">🔵 New</a>
+  <a href="?status=reviewed" class="vt-btn {% if status_filter == 'reviewed' %}active{% endif %}">🟡 Reviewed</a>
+  <a href="?status=accepted" class="vt-btn {% if status_filter == 'accepted' %}active{% endif %}">🟢 Accepted</a>
+  <a href="?status=rejected" class="vt-btn {% if status_filter == 'rejected' %}active{% endif %}">🔴 Rejected</a>
+</div>
+<div class="card">
+  <div class="card-body" style="padding:0">
+    <table class="data-table">
+      <thead><tr><th>Student Name</th><th>Grade</th><th>Parent</th><th>Phone</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for app in apps %}
+        <tr>
+          <td><strong>{{ app.full_name }}</strong><br><span style="font-size:.72rem;color:var(--muted)">{{ app.email }}</span></td>
+          <td>{{ app.grade_applying }}</td>
+          <td>{{ app.parent_name }}</td>
+          <td>{{ app.phone }}</td>
+          <td>{{ app.submitted_at|date:"M d, Y" }}</td>
+          <td><span class="status-badge status-{{ app.status }}">{{ app.get_status_display }}</span></td>
+          <td><a href="/admin-panel/applications/{{ app.pk }}/" class="topbar-btn btn-blue" style="font-size:.72rem;padding:.3rem .7rem">👁 View</a></td>
+        </tr>
+        {% empty %}<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">No applications found.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
